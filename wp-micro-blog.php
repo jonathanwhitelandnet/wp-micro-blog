@@ -36,7 +36,7 @@ remove_all_actions( 'do_feed_rss2' );
 
 function updt_rss_feed_without_titles() {
 	$wp_path = explode('wp-content',__FILE__);
-    	load_template( $wp_ath[0] . 'wp-content/feeds/feed-rss2.php');
+    	load_template( $wp_path[0] . 'wp-content/feeds/feed-rss2.php');
 }
 
 add_action('do_feed_rss2', 'updt_rss_feed_without_titles');
