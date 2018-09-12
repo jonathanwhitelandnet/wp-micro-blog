@@ -1,31 +1,36 @@
 <?php
 /*
-Plugin Name: WP micro.blog Tweaks
-Description: Tweaks for micro.blog
-Version: 1.1
+Plugin Name: A Few Micro Blogging Tweaks
+Description: Just a few tweaks to help with micro blogging
+Version: 1.2
 Author: Jonathan Whiteland
 Author URI: http://whiteland.net/jonathan
 */
 
 
-// Hide Title from "Add new/Edit Post" screen
+// Set Title to a timestamp
 // ----------------------------------------------------------------------------------------------------
-// See: http://wordpress.stackexchange.com/questions/110427/remove-post-title-input-from-edit-page
-
-function updt_hide_post_title() {
-	remove_post_type_support('post', 'title');
-}
-
-add_action('admin_init', 'updt_hide_post_title');
-
-// ...and set it to a timestamp
 // See: https://wordpress.org/support/topic/generating-and-setting-a-custom-post-title/
 
-function updt_set_post_title() {
-	return date("Y-m-d H:i:s");
+function afmbt_post_has_title($title) {
+	// We've got a real title unless it's empty (doh!) or it's actually a datetime (which clearly isn't title either)
+	if (!trim($title) or preg_match("/\d+-\d+-\d+\s+\d+:\d+:\d+/",$title)) {
+		return FALSE;
+	} else {
+		return TRUE;
+	}
 }
 
-add_filter('title_save_pre','updt_set_post_title');
+function afmbt_set_post_title($post_title) {
+	if (!afmbt_post_has_title($post_title)) {
+		$post_title = date("Y-m-d H:i:s");
+	}
+	return $post_title;
+}
+
+add_filter('title_save_pre','afmbt_set_post_title');
+
+
 
 
 // Use custom RSS feed that doesn't have titles
@@ -34,12 +39,10 @@ add_filter('title_save_pre','updt_set_post_title');
 
 remove_all_actions( 'do_feed_rss2' );
 
-function updt_rss_feed_without_titles() {
-	$wp_path = explode('wp-content',__FILE__);
-    	load_template( $wp_path[0] . 'wp-content/feeds/feed-rss2.php');
+function afmbt_rss_feed_without_titles() {
+    load_template( dirname(__FILE__) . '/feed-rss2.php');
 }
 
-add_action('do_feed_rss2', 'updt_rss_feed_without_titles');
-
+add_action('do_feed_rss2', 'afmbt_rss_feed_without_titles');
 
 
